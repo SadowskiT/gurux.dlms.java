@@ -71,7 +71,7 @@ public class GXXmlWriter implements AutoCloseable {
 
     /**
      * Constructor.
-     * 
+     *
      * @param filename
      *            File name.
      * @throws XMLStreamException
@@ -88,7 +88,7 @@ public class GXXmlWriter implements AutoCloseable {
 
     /**
      * Constructor.
-     * 
+     *
      * @param s
      *            Stream.
      * @throws XMLStreamException
@@ -101,7 +101,7 @@ public class GXXmlWriter implements AutoCloseable {
 
     /**
      * Append spaces to the buffer.
-     * 
+     *
      * @param count
      *            Amount of spaces.
      * @throws XMLStreamException
@@ -212,7 +212,7 @@ public class GXXmlWriter implements AutoCloseable {
             for (int pos = 0; pos != arr.length; ++pos) {
                 Object tmp = arr[pos];
                 if (tmp instanceof byte[]) {
-                    writeElementObject("Item", tmp, false);
+                    writeElementObject("Item", tmp, false, false);
                 } else if (tmp instanceof Object[]) {
                     writeStartElement("Item", "Type",
                             String.valueOf(DataType.ARRAY.getValue()), true);
@@ -227,7 +227,7 @@ public class GXXmlWriter implements AutoCloseable {
 
     public final void writeElementObject(final String name, final Object value)
             throws XMLStreamException {
-        writeElementObject(name, value, true);
+        writeElementObject(name, value, true, false);
     }
 
     public final void writeElementObject(final String name, final Object value,
@@ -236,25 +236,25 @@ public class GXXmlWriter implements AutoCloseable {
         if (type != DataType.NONE && value instanceof String) {
             if (type == DataType.OCTET_STRING) {
                 if (uiType == DataType.STRING) {
-                    writeElementObject(name, ((String) value).getBytes(), true);
+                    writeElementObject(name, ((String) value).getBytes(), true, false);
                     return;
                 } else if (uiType == DataType.OCTET_STRING) {
                     writeElementObject(name,
-                            GXDLMSTranslator.hexToBytes((String) value), true);
+                            GXDLMSTranslator.hexToBytes((String) value), true, false);
                     return;
                 }
             } else if (!(value instanceof GXDateTime)) {
                 writeElementObject(name,
-                        GXDLMSConverter.changeType(value, type), true);
+                        GXDLMSConverter.changeType(value, type), true, false);
                 return;
             }
         }
-        writeElementObject(name, value, true);
+        writeElementObject(name, value, true, false);
     }
 
     /**
      * Write object value to file.
-     * 
+     *
      * @param name
      *            Object name.
      * @param value
@@ -265,8 +265,9 @@ public class GXXmlWriter implements AutoCloseable {
      *             Invalid XML stream.
      */
     public final void writeElementObject(final String name, final Object value,
-            final boolean skipDefaultValue) throws XMLStreamException {
-        if (value != null) {
+                                         final boolean skipDefaultValue,
+                                         final boolean skipEmptyField) throws XMLStreamException {
+        if (value != null || !skipEmptyField) {
             if (skipDefaultValue && value instanceof java.util.Date
                     && (((java.util.Date) value)
                             .compareTo(new java.util.Date(0))) == 0) {
@@ -303,7 +304,7 @@ public class GXXmlWriter implements AutoCloseable {
 
     /**
      * Write End Element tag.
-     * 
+     *
      * @throws XMLStreamException
      *             Invalid XML stream.
      */
@@ -313,7 +314,7 @@ public class GXXmlWriter implements AutoCloseable {
 
     /**
      * Write End document tag.
-     * 
+     *
      * @throws XMLStreamException
      *             Invalid XML stream.
      */
@@ -323,7 +324,7 @@ public class GXXmlWriter implements AutoCloseable {
 
     /**
      * Write any cached data to the stream.
-     * 
+     *
      * @throws XMLStreamException
      *             Invalid XML stream.
      */
